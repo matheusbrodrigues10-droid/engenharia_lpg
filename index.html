@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>EngDash Civil | Gestão de Obra</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        :root {
+            --bg-color: #f1f5f9;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --primary: #1e40af;
+            --primary-light: #3b82f6;
+            --success: #15803d;
+            --warning: #b45309;
+            --danger: #b91c1c;
+            --border: #e2e8f0;
+            --nav-bg: #ffffff;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --primary: #60a5fa;
+            --primary-light: #3b82f6;
+            --border: #334155;
+            --nav-bg: #1e293b;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            transition: background 0.2s, color 0.2s;
+            padding-bottom: 75px;
+        }
+
+        /* Header reformulado com foto perfil quadrada */
+        header {
+            background: var(--card-bg);
+            backdrop-filter: blur(4px);
+            padding: 0.8rem 1.2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        /* Lado esquerdo: foto + nome (coluna) */
+        .profile-section {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 6px;
+        }
+
+        .profile-image {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 16px;
+            border: 2px solid var(--primary-light);
+            background-color: var(--bg-color);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        .profile-name {
+            font-weight: 700;
+            font-size: 0.9rem;
+            line-height: 1.2;
+            color: var(--text-main);
+        }
+
+        .profile-badge {
+            font-size: 0.65rem;
+            background: var(--primary-light);
+            padding: 2px 8px;
+            border-radius: 20px;
+            color: white;
+            font-weight: 500;
+            display: inline-block;
+            margin-top: 2px;
+        }
+
+        /* Lado direito: clima + tema */
+        .weather-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--bg-color);
+            padding: 6px 12px;
+            border-radius: 40px;
+        }
+
+        .weather-date {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            font-size: 1.1rem;
+            color: var(--text-main);
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 30px;
+        }
+
+        /* Main grid */
+        main {
+            max-width: 1400px;
+            margin: 1.2rem auto;
+            padding: 0 1rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            padding: 1.25rem;
+            transition: transform 0.1s ease;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+        }
+
+        .card h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--primary);
+            border-left: 3px solid var(--primary);
+            padding-left: 12px;
+        }
+
+        .progress-bg {
+            background: var(--border);
+            border-radius: 30px;
+            height: 8px;
+            width: 100%;
+            margin: 12px 0;
+        }
+
+        .progress-fill {
+            background: var(--success);
+            width: 0%;
+            height: 8px;
+            border-radius: 30px;
+            transition: width 0.2s;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .task-item label {
+            flex: 1;
+            font-size: 0.9rem;
+        }
+
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: var(--primary);
+        }
+
+        .btn-sm {
+            background: var(--primary-light);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 6px 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            border-radius: 12px;
+            padding: 10px;
+            font-weight: 600;
+            width: 100%;
+            margin-top: 12px;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            border: none;
+            color: white;
+            padding: 10px;
+            border-radius: 14px;
+            font-weight: 600;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .input-group {
+            margin-bottom: 12px;
+        }
+
+        .input-group label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px 12px;
+            background: var(--bg-color);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-main);
+            font-size: 0.9rem;
+        }
+
+        .flex-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .result-box {
+            background: var(--bg-color);
+            border-radius: 14px;
+            padding: 12px;
+            margin-top: 12px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .rdo-history {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 12px;
+            font-size: 0.8rem;
+        }
+
+        .history-item {
+            background: var(--bg-color);
+            margin-bottom: 8px;
+            padding: 8px;
+            border-radius: 12px;
+        }
+
+        .photo-preview {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+        .photo-preview img {
+            width: 48px;
+            height: 48px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: var(--nav-bg);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            border-top: 1px solid var(--border);
+            z-index: 99;
+        }
+
+        .nav-item {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            text-decoration: none;
+        }
+
+        .nav-item i {
+            font-size: 1.3rem;
+            display: block;
+        }
+
+        @media (min-width: 800px) {
+            .bottom-nav { display: none; }
+            body { padding-bottom: 0; }
+        }
+
+        @media (max-width: 500px) {
+            .profile-image { width: 50px; height: 50px; }
+            .profile-name { font-size: 0.8rem; }
+            .weather-info { gap: 6px; padding: 4px 8px; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <!-- Lado esquerdo: foto quadrada + nome abaixo -->
+    <div class="profile-section">
+        <img src="Gemini_Generated_Image_eyinaueyinaueyin.png" 
+             alt="Matheus B. Rodrigues" 
+             class="profile-image"
+             onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?background=1e40af&color=fff&name=MBR';">
+        <div class="profile-name">
+            Matheus B. Rodrigues
+            <div class="profile-badge">Eng. Civil | Obra Alpha</div>
+        </div>
+    </div>
+
+    <!-- Lado direito: clima e tema -->
+    <div class="weather-info">
+        <div class="weather-date">
+            <i class="fa-solid fa-cloud-sun"></i> 29°C
+            <span id="currentDate"></span>
+        </div>
+        <button class="icon-btn" id="themeToggle"><i class="fa-solid fa-moon"></i></button>
+    </div>
+</header>
+
+<main>
+    <!-- CARD 1: FOCO DO DIA (TAREFAS) -->
+    <div class="card">
+        <h3><i class="fa-solid fa-list-check"></i> Foco do Dia</h3>
+        <div class="progress-bg"><div class="progress-fill" id="taskProgressFill"></div></div>
+        <div id="taskListContainer"></div>
+        <div class="flex-row" style="margin-top: 10px;">
+            <input type="text" id="newTaskInput" placeholder="Nova tarefa ex: Verificar forma" style="flex:1;">
+            <button class="btn-sm" id="addTaskBtn">+ Adicionar</button>
+        </div>
+    </div>
+
+    <!-- CARD 2: VOLUME CONCRETO / ESCAVAÇÃO -->
+    <div class="card">
+        <h3><i class="fa-solid fa-cube"></i> Volume (Concreto/Escavação)</h3>
+        <div class="input-group"><label>Tipo</label>
+            <select id="volumeType"><option value="Concreto">Concreto (m³)</option><option value="Escavação">Escavação (m³)</option></select>
+        </div>
+        <div class="flex-row">
+            <div class="input-group" style="flex:1"><label>Comp. (m)</label><input type="number" id="volC" placeholder="0.00"></div>
+            <div class="input-group" style="flex:1"><label>Larg. (m)</label><input type="number" id="volL" placeholder="0.00"></div>
+            <div class="input-group" style="flex:1"><label>Esp./Alt (m)</label><input type="number" id="volH" placeholder="0.00"></div>
+        </div>
+        <button class="btn-outline" id="calcVolumeBtn">Calcular Volume</button>
+        <div id="volumeResult" class="result-box" style="display:none;"></div>
+    </div>
+
+    <!-- CARD 3: PESO DE AÇO (kg) - ENGENHEIRO -->
+    <div class="card">
+        <h3><i class="fa-solid fa-weight-hanging"></i> Peso de Aço (kg)</h3>
+        <div class="flex-row">
+            <div class="input-group" style="flex:1"><label>Bitola (mm)</label><select id="steelDiam">
+                <option value="6.3">6.3 mm (0.245 kg/m)</option><option value="8">8 mm (0.395 kg/m)</option>
+                <option value="10">10 mm (0.617 kg/m)</option><option value="12.5">12.5 mm (0.963 kg/m)</option>
+                <option value="16">16 mm (1.578 kg/m)</option><option value="20">20 mm (2.466 kg/m)</option>
+            </select></div>
+            <div class="input-group" style="flex:1"><label>Compr. total (m)</label><input type="number" id="steelLength" placeholder="metros"></div>
+        </div>
+        <div class="input-group"><label>Quant. de barras (opcional)</label><input type="number" id="steelQty" value="1" placeholder="quantidade"></div>
+        <button class="btn-outline" id="calcSteelBtn">Calcular Peso</button>
+        <div id="steelResult" class="result-box" style="display:none;"></div>
+    </div>
+
+    <!-- CARD 4: RDO EXPRESSO + HISTÓRICO -->
+    <div class="card">
+        <h3><i class="fa-solid fa-clipboard-list"></i> RDO Expresso</h3>
+        <div class="flex-row">
+            <div class="input-group"><label>👷 Efetivo próprio</label><input type="number" id="rdoProprio" value="0"></div>
+            <div class="input-group"><label>🔧 Terceiros</label><input type="number" id="rdoTerceiros" value="0"></div>
+        </div>
+        <div class="input-group"><label>📋 Ocorrências / atividades</label><textarea id="rdoOcorrencia" rows="2" placeholder="Concretagem, interrupções, avanços..."></textarea></div>
+        <input type="file" id="rdoFoto" accept="image/*" style="margin: 6px 0;">
+        <div id="fotoPreview" class="photo-preview"></div>
+        <div class="flex-row" style="gap: 8px;">
+            <button class="btn-primary" id="saveRdoBtn" style="margin:0">Salvar RDO</button>
+        </div>
+        <div class="rdo-history" id="rdoHistoryList"><small style="color:var(--text-muted)">Últimos registros aparecem aqui</small></div>
+    </div>
+
+    <!-- CARD 5: CHECKLIST SEGURANÇA (NR-18) -->
+    <div class="card">
+        <h3><i class="fa-solid fa-hard-hat"></i> Checklist Segurança</h3>
+        <div id="safetyChecklist"></div>
+        <button class="btn-sm" id="resetSafetyBtn" style="background:var(--danger); margin-top: 10px;">Resetar checklist</button>
+    </div>
+
+    <!-- CARD 6: PRODUTIVIDADE MÃO DE OBRA -->
+    <div class="card">
+        <h3><i class="fa-solid fa-chart-line"></i> Produtividade (m²/h)</h3>
+        <div class="input-group"><label>Nº de funcionários</label><input type="number" id="prodQtd" value="4"></div>
+        <div class="input-group"><label>Horas trabalhadas (h)</label><input type="number" id="prodHoras" value="8"></div>
+        <div class="input-group"><label>Área executada (m²)</label><input type="number" id="prodArea" placeholder="ex: 120"></div>
+        <button class="btn-outline" id="calcProdBtn">Calcular Produtividade</button>
+        <div id="prodResult" class="result-box" style="display:none;"></div>
+    </div>
+
+    <!-- CARD 7: SLUMP TEST + OBS CONCRETO -->
+    <div class="card">
+        <h3><i class="fa-solid fa-droplet"></i> Controle de Concreto</h3>
+        <div class="input-group"><label>Slump medido (mm)</label><input type="number" id="slumpValor" placeholder="ex: 100"></div>
+        <div class="input-group"><label>Resistência prevista (MPa)</label><input type="number" id="resistMPa" placeholder="C25 / C30"></div>
+        <div class="input-group"><label>Volume aplicado (m³)</label><input type="number" id="concreteVol" placeholder="0.00"></div>
+        <button class="btn-sm" id="logConcretoBtn">Registrar Amostra</button>
+        <div id="concreteLogMsg" class="result-box" style="display:none; font-size:0.8rem;"></div>
+    </div>
+
+    <!-- CARD 8: PROJETOS FIXADOS / DOCS -->
+    <div class="card">
+        <h3><i class="fa-regular fa-folder-open"></i> Documentos da Obra</h3>
+        <div class="doc-link" style="display:flex; gap:10px; align-items:center; background:var(--bg-color); padding:10px; border-radius:14px; margin-bottom:8px;">
+            <i class="fa-regular fa-file-pdf" style="color: var(--danger);"></i>
+            <div><strong>Estrutural - Lajes</strong><div style="font-size:0.7rem;">Rev.05 - 28/03</div></div>
+        </div>
+        <div class="doc-link" style="display:flex; gap:10px; align-items:center; background:var(--bg-color); padding:10px; border-radius:14px;">
+            <i class="fa-regular fa-file-pdf"></i>
+            <div><strong>Hidrossanitário</strong><div style="font-size:0.7rem;">Rev.02</div></div>
+        </div>
+        <button class="btn-outline" id="fakeDriveBtn" style="margin-top: 12px;"><i class="fa-brands fa-google-drive"></i> Acessar Drive Técnico</button>
+    </div>
+</main>
+
+<nav class="bottom-nav">
+    <a href="#" class="nav-item"><i class="fa-solid fa-chart-simple"></i>Dashboard</a>
+    <a href="#" class="nav-item"><i class="fa-solid fa-clipboard"></i>RDO</a>
+    <a href="#" class="nav-item"><i class="fa-solid fa-triangle-exclamation"></i>Segurança</a>
+</nav>
+
+<script>
+    // Helper para data
+    document.getElementById('currentDate').innerText = new Date().toLocaleDateString('pt-BR');
+
+    // DARK MODE
+    const toggle = document.getElementById('themeToggle');
+    toggle.addEventListener('click', () => {
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        if (isDark) {
+            document.documentElement.removeAttribute('data-theme');
+            toggle.innerHTML = '<i class="fa-solid fa-moon"></i>';
+        } else {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            toggle.innerHTML = '<i class="fa-solid fa-sun"></i>';
+        }
+    });
+
+    // ---------- TAREFAS + LOCALSTORAGE ----------
+    let tasks = JSON.parse(localStorage.getItem('engTasks')) || [
+        { text: "Concretagem Laje Pav. 2", done: false },
+        { text: "Recebimento do Aço CA-50", done: false },
+        { text: "Medição Empreiteira Alvenaria", done: false }
+    ];
+    function saveTasks() { localStorage.setItem('engTasks', JSON.stringify(tasks)); }
+    function renderTasks() {
+        const container = document.getElementById('taskListContainer');
+        if(!container) return;
+        container.innerHTML = '';
+        tasks.forEach((task, idx) => {
+            const div = document.createElement('div');
+            div.className = 'task-item';
+            div.innerHTML = `
+                <input type="checkbox" ${task.done ? 'checked' : ''} data-idx="${idx}">
+                <label style="flex:1; ${task.done ? 'text-decoration: line-through; opacity:0.7' : ''}">${escapeHtml(task.text)}</label>
+                <button class="btn-sm" data-del="${idx}" style="background:#b91c1c; padding:4px 8px;"><i class="fa-regular fa-trash-can"></i></button>
+            `;
+            container.appendChild(div);
+        });
+        const checkboxes = document.querySelectorAll('#taskListContainer input[type="checkbox"]');
+        checkboxes.forEach(cb => cb.addEventListener('change', (e) => {
+            const idx = e.target.getAttribute('data-idx');
+            if(idx !== null) { tasks[idx].done = e.target.checked; saveTasks(); updateProgressBar(); }
+        }));
+        document.querySelectorAll('[data-del]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const idx = btn.getAttribute('data-del');
+                tasks.splice(idx, 1);
+                saveTasks(); renderTasks(); updateProgressBar();
+            });
+        });
+        updateProgressBar();
+    }
+    function updateProgressBar() {
+        const total = tasks.length;
+        const done = tasks.filter(t => t.done).length;
+        const percent = total === 0 ? 0 : (done/total)*100;
+        const fill = document.getElementById('taskProgressFill');
+        if(fill) fill.style.width = percent+'%';
+    }
+    function escapeHtml(str) { return str.replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+    document.getElementById('addTaskBtn')?.addEventListener('click', () => {
+        const input = document.getElementById('newTaskInput');
+        if(input.value.trim()) {
+            tasks.push({ text: input.value.trim(), done: false });
+            saveTasks(); renderTasks(); input.value = '';
+        }
+    });
+    renderTasks();
+
+    // VOLUME CALCULATOR
+    document.getElementById('calcVolumeBtn')?.addEventListener('click', () => {
+        const c = parseFloat(document.getElementById('volC').value) || 0;
+        const l = parseFloat(document.getElementById('volL').value) || 0;
+        const h = parseFloat(document.getElementById('volH').value) || 0;
+        const type = document.getElementById('volumeType').value;
+        if(c===0 || l===0 || h===0) { alert('Preencha comprimento, largura e altura'); return; }
+        const volume = (c*l*h).toFixed(2);
+        const resultDiv = document.getElementById('volumeResult');
+        resultDiv.style.display = 'block';
+        resultDiv.innerHTML = `<strong>${volume} m³</strong> de ${type}<br>
+        <button id="copyVolWhats" class="btn-sm" style="margin-top:8px;"><i class="fa-brands fa-whatsapp"></i> Copiar p/ WhatsApp</button>`;
+        document.getElementById('copyVolWhats')?.addEventListener('click', () => {
+            const msg = `🧱 *Solicitação de ${type}*: ${volume} m³ (Dimensões: ${c}m x ${l}m x ${h}m)`;
+            navigator.clipboard.writeText(msg); alert("Copiado! Cole no WhatsApp.");
+        });
+    });
+
+    // AÇO CALC
+    document.getElementById('calcSteelBtn')?.addEventListener('click', () => {
+        const diamMap = { "6.3":0.245, "8":0.395, "10":0.617, "12.5":0.963, "16":1.578, "20":2.466 };
+        const diamSelect = document.getElementById('steelDiam').value;
+        const kgPerM = diamMap[diamSelect];
+        let comp = parseFloat(document.getElementById('steelLength').value) || 0;
+        let qty = parseFloat(document.getElementById('steelQty').value) || 1;
+        if(comp <= 0) { alert("Informe comprimento total em metros"); return; }
+        let totalKg = (kgPerM * comp * qty).toFixed(2);
+        const resDiv = document.getElementById('steelResult');
+        resDiv.style.display = 'block';
+        resDiv.innerHTML = `<strong>${totalKg} kg</strong> de aço Ø${diamSelect} mm<br>
+        <button id="copySteelBtn" class="btn-sm">📋 Copiar Material</button>`;
+        document.getElementById('copySteelBtn')?.addEventListener('click', () => {
+            const msg = `🔩 *Aço CA-50*: ${totalKg} kg (Ø${diamSelect}mm - ${comp}m lineares x ${qty} barras)`;
+            navigator.clipboard.writeText(msg); alert("Texto copiado!");
+        });
+    });
+
+    // RDO + HISTÓRICO
+    let rdoHistory = JSON.parse(localStorage.getItem('rdoHistory')) || [];
+    function renderRdoHistory() {
+        const container = document.getElementById('rdoHistoryList');
+        if(!container) return;
+        if(rdoHistory.length === 0) { container.innerHTML = '<small style="color:var(--text-muted)">Nenhum RDO salvo.</small>'; return; }
+        container.innerHTML = rdoHistory.slice().reverse().map(r => `
+            <div class="history-item">
+                <strong>${r.data}</strong> 🧑‍🤝‍🧑 Próprios:${r.proprio} | Terceiros:${r.terceiros}<br>
+                <span style="font-size:0.75rem;">📌 ${r.ocorrencia.substring(0,60)}</span>
+                ${r.fotoThumb ? `<div><img src="${r.fotoThumb}" width="35" style="border-radius:6px;"></div>` : ''}
+            </div>
+        `).join('');
+    }
+    let currentPhotoBase64 = null;
+    document.getElementById('rdoFoto')?.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if(file) {
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                currentPhotoBase64 = ev.target.result;
+                document.getElementById('fotoPreview').innerHTML = `<img src="${currentPhotoBase64}" width="50" style="border-radius:8px;"> <span style="font-size:0.7rem;">foto anexada</span>`;
+            };
+            reader.readAsDataURL(file);
+        } else { currentPhotoBase64 = null; document.getElementById('fotoPreview').innerHTML = ''; }
+    });
+    document.getElementById('saveRdoBtn')?.addEventListener('click', () => {
+        const proprio = document.getElementById('rdoProprio').value || 0;
+        const terceiros = document.getElementById('rdoTerceiros').value || 0;
+        const ocorrencia = document.getElementById('rdoOcorrencia').value || "Nenhuma observação";
+        if(ocorrencia.trim() === "") { alert("Descreva ao menos uma atividade ou ocorrência"); return; }
+        const newRdo = {
+            data: new Date().toLocaleString('pt-BR'),
+            proprio: proprio,
+            terceiros: terceiros,
+            ocorrencia: ocorrencia,
+            fotoThumb: currentPhotoBase64 || null
+        };
+        rdoHistory.unshift(newRdo);
+        if(rdoHistory.length > 15) rdoHistory.pop();
+        localStorage.setItem('rdoHistory', JSON.stringify(rdoHistory));
+        renderRdoHistory();
+        document.getElementById('rdoOcorrencia').value = '';
+        document.getElementById('rdoProprio').value = 0;
+        document.getElementById('rdoTerceiros').value = 0;
+        document.getElementById('rdoFoto').value = '';
+        currentPhotoBase64 = null;
+        document.getElementById('fotoPreview').innerHTML = '';
+        alert("RDO salvo com sucesso!");
+    });
+    renderRdoHistory();
+
+    // CHECKLIST SEGURANÇA
+    let safetyItems = JSON.parse(localStorage.getItem('safetyChecklist')) || [
+        { name: "Capacete + óculos de proteção", ok: false },
+        { name: "Cinto de segurança (trabalho em altura)", ok: false },
+        { name: "Guarda-corpo e redes (perímetro)", ok: false },
+        { name: "Extintores e sinalização", ok: false },
+        { name: "EPI's completos (luva, bota)", ok: false }
+    ];
+    function saveSafety() { localStorage.setItem('safetyChecklist', JSON.stringify(safetyItems)); }
+    function renderSafety() {
+        const container = document.getElementById('safetyChecklist');
+        if(!container) return;
+        container.innerHTML = '';
+        safetyItems.forEach((item, idx) => {
+            const div = document.createElement('div');
+            div.className = 'task-item';
+            div.innerHTML = `
+                <input type="checkbox" ${item.ok ? 'checked' : ''} data-safety-idx="${idx}">
+                <label style="flex:1">${escapeHtml(item.name)}</label>
+            `;
+            container.appendChild(div);
+        });
+        document.querySelectorAll('#safetyChecklist input[type="checkbox"]').forEach(cb => {
+            cb.addEventListener('change', (e) => {
+                const id = e.target.getAttribute('data-safety-idx');
+                if(id !== null) { safetyItems[id].ok = e.target.checked; saveSafety(); }
+            });
+        });
+    }
+    document.getElementById('resetSafetyBtn')?.addEventListener('click', () => {
+        safetyItems.forEach(i => i.ok = false);
+        saveSafety(); renderSafety();
+    });
+    renderSafety();
+
+    // PRODUTIVIDADE
+    document.getElementById('calcProdBtn')?.addEventListener('click', () => {
+        let qtd = parseFloat(document.getElementById('prodQtd').value) || 0;
+        let horas = parseFloat(document.getElementById('prodHoras').value) || 0;
+        let area = parseFloat(document.getElementById('prodArea').value) || 0;
+        if(qtd <= 0 || horas <= 0 || area <= 0) { alert("Preencha todos os campos"); return; }
+        let homemHora = qtd * horas;
+        let prod = area / homemHora;
+        let prodM2 = prod.toFixed(2);
+        document.getElementById('prodResult').style.display = 'block';
+        document.getElementById('prodResult').innerHTML = `<strong>Produtividade: ${prodM2} m²/hh</strong><br>👥 ${homemHora} homem-hora para ${area} m²`;
+    });
+
+    // CONCRETO / SLUMP
+    let concreteLogs = [];
+    document.getElementById('logConcretoBtn')?.addEventListener('click', () => {
+        let slump = document.getElementById('slumpValor').value;
+        let resist = document.getElementById('resistMPa').value;
+        let vol = document.getElementById('concreteVol').value;
+        if(!slump && !resist && !vol) { alert("Informe ao menos um dado"); return; }
+        const msg = `✅ Slump: ${slump||'---'} mm | Resist. ${resist||'---'} MPa | Vol: ${vol||0} m³`;
+        document.getElementById('concreteLogMsg').style.display = 'block';
+        document.getElementById('concreteLogMsg').innerHTML = msg + '<br><small>Registrado no relatório de concretagem.</small>';
+        concreteLogs.push({ data: new Date().toLocaleTimeString(), slump, resist, vol });
+        localStorage.setItem('concreteLogs', JSON.stringify(concreteLogs));
+        document.getElementById('slumpValor').value = '';
+        document.getElementById('resistMPa').value = '';
+        document.getElementById('concreteVol').value = '';
+        setTimeout(() => { document.getElementById('concreteLogMsg').style.display = 'none'; }, 3000);
+    });
+
+    // Drive fake
+    document.getElementById('fakeDriveBtn')?.addEventListener('click', () => {
+        alert("🔗 Em obra real: integração com Google Drive / SharePoint. Versão de demonstração.");
+    });
+
+    // Carregar alguns logs de concreto salvos
+    const storedLogs = localStorage.getItem('concreteLogs');
+    if(storedLogs) concreteLogs = JSON.parse(storedLogs);
+</script>
+</body>
+</html>
